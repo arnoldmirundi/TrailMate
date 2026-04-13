@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TrailMate.Views.TrailTrackerPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:TrailMate.ViewModels"
+    x:DataType="vm:TrailTrackerViewModel"
+    Title="Trail Tracker">
+
+	<ScrollView>
+		<VerticalStackLayout Padding="16" Spacing="12">
+
+			<Label Text="Trail Tracker"
+                   FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}"/>
+
+			<!-- Error Banner -->
+			<Frame BackgroundColor="{StaticResource ErrorColor}"
+                   IsVisible="{Binding HasError}" Padding="12" CornerRadius="8">
+				<Label Text="{Binding ErrorMessage}" TextColor="White"/>
+			</Frame>
+
+			<!-- Success Banner -->
+			<Frame BackgroundColor="#388E3C"
+                   IsVisible="{Binding StatusMessage, Converter={StaticResource StringToBoolConverter}}"
+                   Padding="12" CornerRadius="8">
+				<Label Text="{Binding StatusMessage}" TextColor="White"/>
+			</Frame>
+
+			<!-- Trail Name (disabled while tracking) -->
+			<Frame BackgroundColor="White" CornerRadius="16" HasShadow="True"
+                   Padding="16" Margin="0">
+				<VerticalStackLayout Spacing="6">
+					<Label Text="Trail Name *" FontAttributes="Bold" FontSize="14"/>
+					<Entry Text="{Binding TrailName}"
+                           Placeholder="e.g. Peak District Walk"
+                           IsEnabled="{Binding IsTracking, Converter={StaticResource InvertBoolConverter}}"
+                           ReturnType="Done"/>
+					<Label Text="{Binding TrailNameError}"
+                           TextColor="{StaticResource ErrorColor}" FontSize="12"
+                           IsVisible="{Binding TrailNameError, Converter={StaticResource StringToBoolConverter}}"/>
+				</VerticalStackLayout>
+			</Frame>
+
+			<!-- Live Stats -->
+			<Grid ColumnDefinitions="*,*,*" ColumnSpacing="8"
+                  IsVisible="{Binding IsTracking}">
+				<Frame Grid.Column="0" BackgroundColor="White" CornerRadius="12"
+                       HasShadow="True" Padding="10" Margin="0">
+					<VerticalStackLayout HorizontalOptions="Center">
+						<Label Text="⏱" FontSize="20" HorizontalOptions="Center"/>
+						<Label Text="{Binding ElapsedTime}" FontAttributes="Bold" FontSize="18"
+                               HorizontalOptions="Center" TextColor="{StaticResource Primary}"/>
+						<Label Text="Time" FontSize="11" HorizontalOptions="Center" Opacity="0.7"/>
+					</VerticalStackLayout>
+				</Frame>
+				<Frame Grid.Column="1" BackgroundColor="White" CornerRadius="12"
+                       HasShadow="True" Padding="10" Margin="0">
+					<VerticalStackLayout HorizontalOptions="Center">
+						<Label Text="📏" FontSize="20" HorizontalOptions="Center"/>
+						<Label Text="{Binding DistanceKm, StringFormat='{0:F2}'}"
+                               FontAttributes="Bold" FontSize="18"
+                               HorizontalOptions="Center" TextColor="{StaticResource Primary}"/>
+						<Label Text="km" FontSize="11" HorizontalOptions="Center" Opacity="0.7"/>
+					</VerticalStackLayout>
+				</Frame>
+				<Frame Grid.Column="2" BackgroundColor="White" CornerRadius="12"
+                       HasShadow="True" Padding="10" Margin="0">
+					<VerticalStackLayout HorizontalOptions="Center">
+						<Label Text="👟" FontSize="20" HorizontalOptions="Center"/>
+						<Label Text="{Binding StepCount}" FontAttributes="Bold" FontSize="18"
+                               HorizontalOptions="Center" TextColor="{StaticResource Primary}"/>
+						<Label Text="Steps" FontSize="11" HorizontalOptions="Center" Opacity="0.7"/>
+					</VerticalStackLayout>
+				</Frame>
+			</Grid>
+
+			<!-- GPS Location -->
+			<Frame BackgroundColor="White" CornerRadius="12" HasShadow="True"
+                   Padding="14" Margin="0" IsVisible="{Binding IsTracking}">
+				<Label Text="{Binding CurrentLocation}" FontSize="14"/>
+			</Frame>
+
+			<!-- 📷 Take Photo Button (mid-trail) -->
+			<Button Text="{Binding PhotoCount, StringFormat='📷  Take Photo ({0} taken)'}"
+                    BackgroundColor="#1565C0"
+                    TextColor="White" CornerRadius="12"
+                    FontSize="15" HeightRequest="48"
+                    Command="{Binding TakeTrailPhotoCommand}"
+                    IsVisible="{Binding IsTracking}"/>
+
+			<!-- Photo strip -->
+			<CollectionView ItemsSource="{Binding TrailPhotos}"
+                            HeightRequest="100"
+                            IsVisible="{Binding HasPhotos}">
+				<CollectionView.ItemsLayout>
+					<LinearItemsLayout Orientation="Horizontal" ItemSpacing="8"/>
+				</CollectionView.ItemsLayout>
+				<CollectionView.ItemTemplate>
+					<DataTemplate x:DataType="x:String">
+						<Image Source="{Binding ., Converter={StaticResource StringToImageSourceConverter}}"
+                               WidthRequest="100" HeightRequest="100"
+                               Aspect="AspectFill"/>
+					</DataTemplate>
+				</CollectionView.ItemTemplate>
+			</CollectionView>
+
+			<!-- Notes -->
+			<Frame BackgroundColor="White" CornerRadius="16" HasShadow="True"
+                   Padding="16" Margin="0">
+				<VerticalStackLayout Spacing="6">
+					<Label Text="Notes (optional)" FontAttributes="Bold" FontSize="14"/>
+					<Editor Text="{Binding Notes}"
+                            Placeholder="Describe the trail conditions..."
+                            AutoSize="TextChanges" MaxLength="500"
+                            MinimumHeightRequest="80"/>
+				</VerticalStackLayout>
+			</Frame>
+
+			<!-- Start -->
+			<Button Text=" Start Trail"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White" CornerRadius="12"
+                    FontSize="16" HeightRequest="52" FontAttributes="Bold"
+                    Command="{Binding StartTrackingCommand}"
+                    IsVisible="{Binding IsTracking, Converter={StaticResource InvertBoolConverter}}"
+                    IsEnabled="{Binding IsNotBusy}"/>
+
+			<!-- Stop -->
+			<Button Text="Stop &amp; Save"
+                    BackgroundColor="#C62828" TextColor="White"
+                    CornerRadius="12" FontSize="16" HeightRequest="52" FontAttributes="Bold"
+                    Command="{Binding StopTrackingCommand}"
+                    IsVisible="{Binding IsTracking}"/>
+
+			<ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}" HorizontalOptions="Center"/>
+
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

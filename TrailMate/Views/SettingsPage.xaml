@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TrailMate.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:TrailMate.ViewModels"
+    x:DataType="vm:SettingsViewModel"
+    Title="Settings">
+
+	<ScrollView>
+		<VerticalStackLayout Padding="16" Spacing="12">
+
+			<Label Text="Settings"
+                   FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}"/>
+
+			<!-- Banners -->
+			<Frame BackgroundColor="{StaticResource ErrorColor}"
+                   IsVisible="{Binding HasError}" Padding="12" CornerRadius="8">
+				<Label Text="{Binding ErrorMessage}" TextColor="White"/>
+			</Frame>
+			<Frame BackgroundColor="#388E3C"
+                   IsVisible="{Binding StatusMessage, Converter={StaticResource StringToBoolConverter}}"
+                   Padding="12" CornerRadius="8">
+				<Label Text="{Binding StatusMessage}" TextColor="White"/>
+			</Frame>
+
+			<!--  APPEARANCE  -->
+			<Label Text="APPEARANCE" FontSize="12" FontAttributes="Bold"
+                   Opacity="0.5" Margin="4,8,0,0" CharacterSpacing="1.5"/>
+
+			<Frame BackgroundColor="White" CornerRadius="16" HasShadow="True"
+                   Padding="16" Margin="0">
+				<VerticalStackLayout Spacing="16">
+
+					<!-- Dark Mode  -->
+					<Grid ColumnDefinitions="*,Auto">
+						<VerticalStackLayout Grid.Column="0" Spacing="2">
+							<Label Text="Dark Mode" FontAttributes="Bold" FontSize="16"/>
+							<Label Text="Changes theme instantly" FontSize="12" Opacity="0.6"/>
+						</VerticalStackLayout>
+						<Switch Grid.Column="1" IsToggled="{Binding IsDarkMode}"
+                                OnColor="{StaticResource Primary}" VerticalOptions="Center"/>
+					</Grid>
+
+					<BoxView HeightRequest="1" Color="#F0F0F0"/>
+
+					<!-- Font Scale -->
+					<VerticalStackLayout Spacing="6">
+						<Label Text="Text Size" FontAttributes="Bold" FontSize="16"/>
+						<Label Text="Adjusts readability (WCAG 1.4.4)" FontSize="12" Opacity="0.6"/>
+						<Slider Minimum="0.8" Maximum="1.6" Value="{Binding FontScale}"
+                                ThumbColor="{StaticResource Primary}"
+                                MinimumTrackColor="{StaticResource Primary}"/>
+						<Label Text="{Binding FontScale, StringFormat='Scale: {0:F1}×'}"
+                               HorizontalOptions="Center" FontSize="13"
+                               TextColor="{StaticResource Primary}"/>
+					</VerticalStackLayout>
+
+				</VerticalStackLayout>
+			</Frame>
+
+			<!-- ── UNITS ── -->
+			<Label Text="UNITS" FontSize="12" FontAttributes="Bold"
+                   Opacity="0.5" Margin="4,8,0,0" CharacterSpacing="1.5"/>
+
+			<Frame BackgroundColor="White" CornerRadius="16" HasShadow="True"
+                   Padding="16" Margin="0">
+				<Grid ColumnDefinitions="*,Auto">
+					<VerticalStackLayout Grid.Column="0" Spacing="2">
+						<Label Text="Metric Units (km)" FontAttributes="Bold" FontSize="16"/>
+						<Label Text="Toggle for miles instead" FontSize="12" Opacity="0.6"/>
+					</VerticalStackLayout>
+					<Switch Grid.Column="1" IsToggled="{Binding UseMetric}"
+                            OnColor="{StaticResource Primary}" VerticalOptions="Center"/>
+				</Grid>
+			</Frame>
+
+			<!--ACCESSIBILITY / TTS -->
+			<Label Text="ACCESSIBILITY" FontSize="12" FontAttributes="Bold"
+                   Opacity="0.5" Margin="4,8,0,0" CharacterSpacing="1.5"/>
+
+			<Frame BackgroundColor="White" CornerRadius="16" HasShadow="True"
+                   Padding="16" Margin="0">
+				<VerticalStackLayout Spacing="16">
+
+					<!-- TTS Enabled -->
+					<Grid ColumnDefinitions="*,Auto">
+						<VerticalStackLayout Grid.Column="0" Spacing="2">
+							<Label Text="Text-to-Speech" FontAttributes="Bold" FontSize="16"/>
+							<Label Text="Spoken confirmations on capture/heading" FontSize="12" Opacity="0.6"/>
+						</VerticalStackLayout>
+						<Switch Grid.Column="1" IsToggled="{Binding TtsEnabled}"
+                                OnColor="{StaticResource Primary}" VerticalOptions="Center"/>
+					</Grid>
+
+					<BoxView HeightRequest="1" Color="#F0F0F0"/>
+
+					<!-- TTS Speed -->
+					<VerticalStackLayout Spacing="6"
+                                         IsEnabled="{Binding TtsEnabled}">
+						<Label Text="Speech Speed" FontAttributes="Bold" FontSize="15"
+                               Opacity="{Binding TtsEnabled, Converter={StaticResource BoolToOpacityConverter}}"/>
+						<Slider Minimum="0.5" Maximum="2.0" Value="{Binding TtsSpeed}"
+                                ThumbColor="{StaticResource Primary}"
+                                MinimumTrackColor="{StaticResource Primary}"
+                                IsEnabled="{Binding TtsEnabled}"/>
+						<Label Text="{Binding TtsSpeed, StringFormat='Speed: {0:F1}×'}"
+                               HorizontalOptions="Center" FontSize="13"
+                               TextColor="{StaticResource Primary}"/>
+					</VerticalStackLayout>
+
+					<!-- Test TTS -->
+					<Button Text="Test Speech"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Primary}"
+                            BorderColor="{StaticResource Primary}"
+                            BorderWidth="2" CornerRadius="12"
+                            FontSize="15" HeightRequest="48"
+                            Command="{Binding TestTtsCommand}"
+                            IsEnabled="{Binding TtsEnabled}"/>
+
+				</VerticalStackLayout>
+			</Frame>
+
+			<!--  STORAGE -->
+			<Label Text="STORAGE" FontSize="12" FontAttributes="Bold"
+                   Opacity="0.5" Margin="4,8,0,0" CharacterSpacing="1.5"/>
+
+			<Frame BackgroundColor="White" CornerRadius="16" HasShadow="True"
+                   Padding="16" Margin="0">
+				<VerticalStackLayout Spacing="12">
+
+					<Label Text="{Binding StorageInfo}"
+                           FontSize="14" Opacity="0.8"
+                           IsVisible="{Binding StorageInfo, Converter={StaticResource StringToBoolConverter}}"/>
+
+					<Button Text="Storage Usage"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Primary}"
+                            BorderColor="{StaticResource Primary}"
+                            BorderWidth="2" CornerRadius="12"
+                            FontSize="15" HeightRequest="48"
+                            Command="{Binding LoadStorageInfoCommand}"
+                            IsEnabled="{Binding IsNotBusy}"/>
+
+					<Button Text="Clear All Photos"
+                            BackgroundColor="#C62828" TextColor="White"
+                            CornerRadius="12" FontSize="15" HeightRequest="48"
+                            Command="{Binding ClearAllPhotosCommand}"
+                            IsEnabled="{Binding IsNotBusy}"/>
+
+				</VerticalStackLayout>
+			</Frame>
+
+			<!-- SAVE / RESET -->
+			<Button Text="Save Settings"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White" CornerRadius="12"
+                    FontSize="16" HeightRequest="52" FontAttributes="Bold"
+                    Command="{Binding SaveSettingsCommand}"
+                    Margin="0,8,0,0"/>
+
+			<Button Text="Reset to Defaults"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    BorderColor="{StaticResource Primary}"
+                    BorderWidth="2" CornerRadius="12"
+                    FontSize="16" HeightRequest="52"
+                    Command="{Binding ResetDefaultsCommand}"/>
+
+			<ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}" HorizontalOptions="Center"/>
+
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TrailMate.Views.GalleryPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:TrailMate.ViewModels"
+    xmlns:models="clr-namespace:TrailMate.Models"
+    x:DataType="vm:GalleryViewModel"
+    Title="{Binding Title}"
+    SemanticProperties.Description="Gallery of trail photos and session details">
+
+    <!-- ── DETAIL VIEW — shown when a photo/trail is tapped ── -->
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="← Back"
+                     Command="{Binding BackToGridCommand}"
+                     IsDestructive="False"
+                     IsEnabled="{Binding IsDetailView}"
+                     SemanticProperties.Description="Return to photo grid"/>
+    </ContentPage.ToolbarItems>
+
+    <Grid>
+
+        <!-- ══════════════════════════════════════════════════
+             GRID VIEW  (IsDetailView = false)
+             ══════════════════════════════════════════════════ -->
+        <ScrollView IsVisible="{Binding IsDetailView,
+                                Converter={StaticResource InvertBoolConverter}}">
+            <VerticalStackLayout Padding="16" Spacing="12">
+
+                <!-- Header -->
+                <Frame Style="{StaticResource CardStyle}" Margin="0"
+                       BackgroundColor="{StaticResource PrimaryLight}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="🖼️ Trail Gallery"
+                                   Style="{StaticResource HeadingLabel}"/>
+                            <Label Text="{Binding PhotoCount}"
+                                   FontSize="13" Opacity="0.75"/>
+                        </VerticalStackLayout>
+                        <ActivityIndicator Grid.Column="1"
+                                           IsRunning="{Binding IsBusy}"
+                                           IsVisible="{Binding IsBusy}"
+                                           Color="{StaticResource Primary}"
+                                           VerticalOptions="Center"/>
+                    </Grid>
+                </Frame>
+
+                <!-- Error Banner -->
+                <Frame BackgroundColor="{StaticResource ErrorColor}"
+                       IsVisible="{Binding HasError}"
+                       Padding="12" CornerRadius="8">
+                    <Label Text="{Binding ErrorMessage}" TextColor="White"
+                           SemanticProperties.Description="Error message"/>
+                </Frame>
+
+                <!-- Empty state -->
+                <VerticalStackLayout Spacing="12" Padding="20"
+                    IsVisible="{Binding PhotoTrails.Count,
+                                Converter={StaticResource IntToBoolConverter},
+                                ConverterParameter=invert}">
+                    <Label Text="📷" FontSize="64" HorizontalOptions="Center"/>
+                    <Label Text="No trail photos yet."
+                           FontSize="16" HorizontalOptions="Center"
+                           FontAttributes="Bold"/>
+                    <Label Text="Go to the Camera tab to take a photo during your next trail session."
+                           FontSize="14" HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" Opacity="0.7"/>
+                </VerticalStackLayout>
+
+                <!-- Photo grid — 2 columns -->
+                <CollectionView ItemsSource="{Binding PhotoTrails}"
+                                SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical"
+                                         Span="2"
+                                         HorizontalItemSpacing="8"
+                                         VerticalItemSpacing="8"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:TrailEntry">
+                            <Frame Style="{StaticResource CardStyle}"
+                                   Margin="0" Padding="0"
+                                   CornerRadius="12">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:GalleryViewModel}},
+                                                          Path=SelectTrailCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Frame.GestureRecognizers>
+                                <Grid RowDefinitions="140,Auto">
+                                    <!-- Photo thumbnail -->
+                                    <Image Grid.Row="0"
+                                           Source="{Binding PhotoPath,
+                                                    Converter={StaticResource StringToImageSourceConverter}}"
+                                           Aspect="AspectFill"
+                                           HeightRequest="140"
+                                           SemanticProperties.Description="Trail photo thumbnail"/>
+                                    <!-- Trail name overlay -->
+                                    <Grid Grid.Row="0" VerticalOptions="End">
+                                        <BoxView Color="Black" Opacity="0.45"
+                                                 HeightRequest="36"/>
+                                        <Label Text="{Binding Name}"
+                                               TextColor="White"
+                                               FontSize="12" FontAttributes="Bold"
+                                               Padding="8,4"
+                                               VerticalOptions="Center"
+                                               LineBreakMode="TailTruncation"/>
+                                    </Grid>
+                                    <!-- Stats row -->
+                                    <HorizontalStackLayout Grid.Row="1"
+                                                           Padding="8,6" Spacing="6">
+                                        <Label FontSize="11" Opacity="0.7">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding DistanceKm,
+                                                                  StringFormat='{0:F1}km'}"/>
+                                                    <Span Text=" · "/>
+                                                    <Span Text="{Binding DurationMinutes,
+                                                                  StringFormat='{0}min'}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ══════════════════════════════════════════════════
+             DETAIL VIEW  (IsDetailView = true)
+             ══════════════════════════════════════════════════ -->
+        <ScrollView IsVisible="{Binding IsDetailView}">
+            <VerticalStackLayout Padding="16" Spacing="12"
+                                 BindingContext="{Binding SelectedTrail}">
+
+                <!-- Full-size photo -->
+                <Frame Style="{StaticResource CardStyle}" Margin="0" Padding="0"
+                       CornerRadius="16">
+                    <Image Source="{Binding PhotoPath,
+                                   Converter={StaticResource StringToImageSourceConverter}}"
+                           Aspect="AspectFill"
+                           HeightRequest="280"
+                           SemanticProperties.Description="Full trail photo"/>
+                </Frame>
+
+                <!-- Trail title & date -->
+                <Frame Style="{StaticResource CardStyle}" Margin="0">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding Name}"
+                               FontSize="24" FontAttributes="Bold"
+                               SemanticProperties.HeadingLevel="Level1"/>
+                        <Label Text="{Binding StartedAt, StringFormat='📅 {0:dddd, dd MMMM yyyy}'}"
+                               FontSize="14" Opacity="0.7"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Stats cards row -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+
+                    <Frame Grid.Column="0" Style="{StaticResource CardStyle}"
+                           Margin="0" Padding="10">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                            <Label Text="📏" FontSize="22" HorizontalOptions="Center"/>
+                            <Label Text="{Binding DistanceKm, StringFormat='{0:F2}'}"
+                                   FontAttributes="Bold" FontSize="18"
+                                   HorizontalOptions="Center"
+                                   TextColor="{StaticResource Primary}"/>
+                            <Label Text="km" FontSize="11"
+                                   HorizontalOptions="Center" Opacity="0.7"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame Grid.Column="1" Style="{StaticResource CardStyle}"
+                           Margin="0" Padding="10">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                            <Label Text="⏱" FontSize="22" HorizontalOptions="Center"/>
+                            <Label Text="{Binding DurationMinutes}"
+                                   FontAttributes="Bold" FontSize="18"
+                                   HorizontalOptions="Center"
+                                   TextColor="{StaticResource Primary}"/>
+                            <Label Text="min" FontSize="11"
+                                   HorizontalOptions="Center" Opacity="0.7"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame Grid.Column="2" Style="{StaticResource CardStyle}"
+                           Margin="0" Padding="10">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                            <Label Text="👟" FontSize="22" HorizontalOptions="Center"/>
+                            <Label Text="{Binding StepCount}"
+                                   FontAttributes="Bold" FontSize="18"
+                                   HorizontalOptions="Center"
+                                   TextColor="{StaticResource Primary}"/>
+                            <Label Text="steps" FontSize="11"
+                                   HorizontalOptions="Center" Opacity="0.7"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- Start location -->
+                <Frame Style="{StaticResource CardStyle}" Margin="0">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="📍 Start Location" FontAttributes="Bold" FontSize="14"/>
+                        <Label FontSize="13" Opacity="0.8">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding StartLatitude,  StringFormat='Lat: {0:F5}'}"/>
+                                    <Span Text="   "/>
+                                    <Span Text="{Binding StartLongitude, StringFormat='Lon: {0:F5}'}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Notes (only shown if non-empty) -->
+                <Frame Style="{StaticResource CardStyle}" Margin="0"
+                       IsVisible="{Binding Notes,
+                                   Converter={StaticResource StringToBoolConverter}}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="📝 Notes" FontAttributes="Bold" FontSize="14"/>
+                        <Label Text="{Binding Notes}"
+                               Style="{StaticResource BodyLabel}" FontSize="14"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Action Buttons — bound back to the page's ViewModel -->
+                <Button Text="🔊  Read Summary Aloud"
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                          Path=BindingContext.SpeakTrailSummaryCommand}"
+                        SemanticProperties.Description="Speak trail statistics aloud"/>
+
+                <Button Text="🗑️  Delete This Trail"
+                        BackgroundColor="{StaticResource ErrorColor}"
+                        TextColor="White" CornerRadius="12"
+                        FontSize="16" HeightRequest="52" FontAttributes="Bold"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                          Path=BindingContext.DeleteTrailCommand}"
+                        SemanticProperties.Description="Permanently delete this trail entry"/>
+
+                <!-- Busy Indicator -->
+                <ActivityIndicator IsRunning="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                       Path=BindingContext.IsBusy}"
+                                   IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                       Path=BindingContext.IsBusy}"
+                                   Color="{StaticResource Primary}"
+                                   HorizontalOptions="Center"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+</ContentPage>

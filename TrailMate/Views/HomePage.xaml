@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TrailMate.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:TrailMate.ViewModels"
+    xmlns:models="clr-namespace:TrailMate.Models"
+    x:DataType="vm:HomeViewModel"
+    Title="Home">
+
+	<ScrollView>
+		<VerticalStackLayout Spacing="0" Padding="0,0,0,24">
+
+			<!-- Hero Banner -->
+			<Grid BackgroundColor="{StaticResource Primary}" Padding="20,40,20,30">
+				<VerticalStackLayout Spacing="6">
+					<Label Text="TrailMate"
+                           FontSize="32" FontAttributes="Bold" TextColor="White"/>
+					<Label Text="Track trails. Explore nature."
+                           FontSize="15" TextColor="White" Opacity="0.9"/>
+				</VerticalStackLayout>
+			</Grid>
+
+			<!-- Error Banner -->
+			<Frame BackgroundColor="{StaticResource ErrorColor}"
+                   IsVisible="{Binding HasError}"
+                   Margin="12,8" Padding="12" CornerRadius="8">
+				<Label Text="{Binding ErrorMessage}" TextColor="White" FontSize="14"/>
+			</Frame>
+
+			<!-- Quick Actions -->
+			<Label Text="Quick Actions"
+                   FontSize="18" FontAttributes="Bold" Margin="16,16,16,4"/>
+
+			<Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="12,4">
+
+				<Frame Grid.Column="0" BackgroundColor="White" CornerRadius="16"
+                       HasShadow="True" Padding="16" Margin="0">
+					<Frame.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding GoToTrackerCommand}"/>
+					</Frame.GestureRecognizers>
+					<VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+						<Label Text="🗺" FontSize="36" HorizontalOptions="Center"/>
+						<Label Text="Trail Tracker" FontAttributes="Bold"
+                               HorizontalOptions="Center" FontSize="14"
+                               TextColor="{StaticResource Primary}"/>
+						<Label Text="Record your hike" FontSize="12"
+                               HorizontalOptions="Center" Opacity="0.6"/>
+					</VerticalStackLayout>
+				</Frame>
+
+				<Frame Grid.Column="1" BackgroundColor="White" CornerRadius="16"
+                       HasShadow="True" Padding="16" Margin="0">
+					<Frame.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding GoToCameraCommand}"/>
+					</Frame.GestureRecognizers>
+					<VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+						<Label Text="📷" FontSize="36" HorizontalOptions="Center"/>
+						<Label Text="Camera" FontAttributes="Bold"
+                               HorizontalOptions="Center" FontSize="14"
+                               TextColor="{StaticResource Primary}"/>
+						<Label Text="Capture the trail" FontSize="12"
+                               HorizontalOptions="Center" Opacity="0.6"/>
+					</VerticalStackLayout>
+				</Frame>
+			</Grid>
+
+			<!-- Recent Trails heading -->
+			<Label Text="Recent Trails"
+                   FontSize="18" FontAttributes="Bold" Margin="16,12,16,4"/>
+
+			<ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"
+                               HorizontalOptions="Center" Margin="20"/>
+
+			<!-- Empty state -->
+			<Label Text="No trails yet. Start your first adventure!"
+                   FontSize="14" HorizontalOptions="Center"
+                   Margin="20" HorizontalTextAlignment="Center"
+                   IsVisible="{Binding IsEmpty}"/>
+
+			<!--
+                SelectionMode="Single" — tapping a card fires SelectionChanged
+                in code-behind, which calls OpenTrailDetailAsync on the VM.
+                x:Name lets the code-behind access this view.
+            -->
+			<CollectionView x:Name="TrailsCollection"
+                            ItemsSource="{Binding RecentTrails}"
+                            SelectionMode="Single"
+                            SelectionChanged="OnTrailSelected">
+				<CollectionView.ItemTemplate>
+					<DataTemplate x:DataType="models:TrailEntry">
+
+						<Grid Padding="12,6">
+							<Frame BackgroundColor="White" CornerRadius="16"
+                                   HasShadow="True" Padding="0" Margin="0">
+
+								<Grid ColumnDefinitions="*,Auto" Padding="16">
+
+									<!-- Trail info — tap area -->
+									<VerticalStackLayout Grid.Column="0" Spacing="4">
+										<Label Text="{Binding Name}"
+                                               FontAttributes="Bold" FontSize="16"/>
+										<Label FontSize="13" Opacity="0.7">
+											<Label.FormattedText>
+												<FormattedString>
+													<Span Text="{Binding DistanceKm, StringFormat='{0:F1} km'}"/>
+													<Span Text="  ·  "/>
+													<Span Text="{Binding DurationMinutes, StringFormat='{0} min'}"/>
+													<Span Text="  ·  "/>
+													<Span Text="{Binding StepCount, StringFormat='{0} steps'}"/>
+												</FormattedString>
+											</Label.FormattedText>
+										</Label>
+										<Label Text="{Binding StartedAt, StringFormat='{0:dd MMM yyyy  HH:mm}'}"
+                                               FontSize="12" Opacity="0.5"/>
+										<!-- Photo count badge -->
+										<Label FontSize="12" TextColor="{StaticResource Primary}"
+                                               IsVisible="{Binding HasPhotos}">
+											<Label.FormattedText>
+												<FormattedString>
+													<Span Text=""/>
+													<Span Text="{Binding PhotoPathList.Count, StringFormat='{0} photo(s)'}"/>
+												</FormattedString>
+											</Label.FormattedText>
+										</Label>
+									</VerticalStackLayout>
+
+									<!-- Right side: chevron + delete -->
+									<VerticalStackLayout Grid.Column="1"
+                                                         VerticalOptions="Center"
+                                                         HorizontalOptions="End"
+                                                         Spacing="4">
+										<Label Text="›" FontSize="28" Opacity="0.35"
+                                               TextColor="{StaticResource Primary}"
+                                               HorizontalOptions="Center"/>
+										<!--
+                                            Delete button — x:Name not needed; we pass
+                                            the BindingContext (the TrailEntry) via
+                                            CommandParameter using a gesture in code-behind.
+                                            We use Clicked event instead so code-behind
+                                            can resolve the VM directly.
+                                        -->
+										<Button Text="🗑"
+                                                FontSize="16"
+                                                BackgroundColor="Transparent"
+                                                TextColor="{StaticResource ErrorColor}"
+                                                Padding="4"
+                                                WidthRequest="36"
+                                                HeightRequest="36"
+                                                Clicked="OnDeleteClicked"
+                                                BindingContext="{Binding .}"/>
+									</VerticalStackLayout>
+
+								</Grid>
+							</Frame>
+						</Grid>
+
+					</DataTemplate>
+				</CollectionView.ItemTemplate>
+			</CollectionView>
+
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

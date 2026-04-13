@@ -1,0 +1,31 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Primary palette — WCAG AA contrast ratios maintained -->
+    <Color x:Key="Primary">#2E7D32</Color>
+    <!-- Forest green -->
+    <Color x:Key="PrimaryDark">#1B5E20</Color>
+    <Color x:Key="PrimaryLight">#A5D6A7</Color>
+    <Color x:Key="Secondary">#FF8F00</Color>
+    <!-- Amber -->
+    <Color x:Key="SecondaryDark">#E65100</Color>
+    <Color x:Key="Tertiary">#1565C0</Color>
+
+    <!-- Semantic colours -->
+    <Color x:Key="SuccessColor">#388E3C</Color>
+    <Color x:Key="ErrorColor">#C62828</Color>
+    <Color x:Key="WarningColor">#F57F17</Color>
+    <Color x:Key="InfoColor">#0277BD</Color>
+
+    <!-- Light theme surfaces -->
+    <Color x:Key="BackgroundLight">#F9FBF9</Color>
+    <Color x:Key="SurfaceLight">#FFFFFF</Color>
+    <Color x:Key="OnSurfaceLight">#1C1C1E</Color>
+
+    <!-- Dark theme surfaces -->
+    <Color x:Key="BackgroundDark">#121212</Color>
+    <Color x:Key="SurfaceDark">#1E1E1E</Color>
+    <Color x:Key="OnSurfaceDark">#E0E0E0</Color>
+
+</ResourceDictionary>

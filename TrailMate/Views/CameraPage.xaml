@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TrailMate.Views.CameraPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:TrailMate.ViewModels"
+    x:DataType="vm:CameraViewModel"
+    Title="Camera">
+
+	<ScrollView>
+		<VerticalStackLayout Padding="16" Spacing="12">
+
+			<Label Text="Trail Camera"
+                   FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}"/>
+			<Label Text="Capture moments on the trail. A confirmation will be read aloud when a photo is taken."
+                   FontSize="13" Opacity="0.7"/>
+
+			<!-- Error Banner -->
+			<Frame BackgroundColor="{StaticResource ErrorColor}"
+                   IsVisible="{Binding HasError}"
+                   Padding="12" CornerRadius="8">
+				<Label Text="{Binding ErrorMessage}" TextColor="White"/>
+			</Frame>
+
+			<!-- Photo Preview -->
+			<Frame BackgroundColor="White" CornerRadius="16" HasShadow="True"
+                   Padding="8" Margin="0" IsVisible="{Binding HasPhoto}">
+				<VerticalStackLayout Spacing="8">
+					<Image Source="{Binding CapturedImage}"
+                           HeightRequest="300" Aspect="AspectFill"/>
+					<Label Text="{Binding PhotoTimestamp}"
+                           FontSize="13" Opacity="0.7"
+                           HorizontalOptions="Center"/>
+					<Button Text=" Clear Photo"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Primary}"
+                            BorderColor="{StaticResource Primary}"
+                            BorderWidth="2" CornerRadius="12"
+                            FontSize="15" HeightRequest="48"
+                            Command="{Binding ClearPhotoCommand}"/>
+				</VerticalStackLayout>
+			</Frame>
+
+			<!-- Placeholder -->
+			<Frame BackgroundColor="White" CornerRadius="16" HasShadow="True"
+                   Padding="30" Margin="0"
+                   IsVisible="{Binding HasPhoto, Converter={StaticResource InvertBoolConverter}}">
+				<VerticalStackLayout Spacing="8">
+					<Label Text="📷" FontSize="64" HorizontalOptions="Center"/>
+					<Label Text="No photo captured yet"
+                           FontSize="15" HorizontalOptions="Center" Opacity="0.6"/>
+				</VerticalStackLayout>
+			</Frame>
+
+			<!-- Buttons -->
+			<Button Text=" Take Photo"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White" CornerRadius="12"
+                    FontSize="16" HeightRequest="52" FontAttributes="Bold"
+                    Command="{Binding TakePhotoCommand}"
+                    IsEnabled="{Binding IsNotBusy}"/>
+
+			<Button Text="Choose from Library"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    BorderColor="{StaticResource Primary}"
+                    BorderWidth="2" CornerRadius="12"
+                    FontSize="16" HeightRequest="52"
+                    Command="{Binding PickPhotoCommand}"
+                    IsEnabled="{Binding IsNotBusy}"/>
+
+			<ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}"
+                               HorizontalOptions="Center"/>
+
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

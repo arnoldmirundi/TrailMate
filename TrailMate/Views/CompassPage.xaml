@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TrailMate.Views.CompassPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:TrailMate.ViewModels"
+    x:DataType="vm:CompassViewModel"
+    Title="Compass">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <Label Text="Compass"
+                   FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}"/>
+
+            <!-- Error Banner -->
+            <Frame BackgroundColor="{StaticResource ErrorColor}"
+                   IsVisible="{Binding HasError}"
+                   Padding="12" CornerRadius="8">
+                <Label Text="{Binding ErrorMessage}" TextColor="White"/>
+            </Frame>
+
+            <!-- Compass Display -->
+            <Frame BackgroundColor="White" CornerRadius="16" HasShadow="True"
+                   Padding="24" Margin="0">
+                <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+
+                    <!-- Rose -->
+                    <Grid WidthRequest="220" HeightRequest="220" HorizontalOptions="Center">
+                        <Ellipse Stroke="{StaticResource Primary}" StrokeThickness="3"
+                                 Fill="Transparent" WidthRequest="220" HeightRequest="220"/>
+                        <Label Text="N" FontAttributes="Bold" FontSize="20"
+                               TextColor="#C62828"
+                               HorizontalOptions="Center" VerticalOptions="Start"
+                               Margin="0,12,0,0"/>
+                        <Label Text="S" FontAttributes="Bold" FontSize="18"
+                               HorizontalOptions="Center" VerticalOptions="End"
+                               Margin="0,0,0,12"/>
+                        <Label Text="W" FontSize="18"
+                               HorizontalOptions="Start" VerticalOptions="Center"
+                               Margin="12,0,0,0"/>
+                        <Label Text="E" FontSize="18"
+                               HorizontalOptions="End" VerticalOptions="Center"
+                               Margin="0,0,12,0"/>
+                        <!-- Needle -->
+                        <BoxView Color="#C62828" WidthRequest="4" HeightRequest="90"
+                                 VerticalOptions="Start" HorizontalOptions="Center"
+                                 Margin="0,20,0,0"
+                                 Rotation="{Binding NeedleRotation}"/>
+                    </Grid>
+
+                    <Label Text="{Binding HeadingDegrees, StringFormat='{0:F1}°'}"
+                           FontSize="48" FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{StaticResource Primary}"/>
+                    <Label Text="{Binding HeadingDetail}"
+                           FontSize="24" FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Start -->
+            <Button Text=" Start Compass"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White" CornerRadius="12"
+                    FontSize="16" HeightRequest="52" FontAttributes="Bold"
+                    Command="{Binding StartCompassCommand}"
+                    IsVisible="{Binding IsCompassActive, Converter={StaticResource InvertBoolConverter}}"/>
+
+            <!-- Stop -->
+            <Button Text=" Stop Compass"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    BorderColor="{StaticResource Primary}"
+                    BorderWidth="2" CornerRadius="12"
+                    FontSize="16" HeightRequest="52"
+                    Command="{Binding StopCompassCommand}"
+                    IsVisible="{Binding IsCompassActive}"/>
+
+            <!-- Speak heading -->
+            <Button Text="Read Heading Aloud"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    BorderColor="{StaticResource Primary}"
+                    BorderWidth="2" CornerRadius="12"
+                    FontSize="16" HeightRequest="52"
+                    Command="{Binding AnnounceHeadingCommand}"
+                    IsEnabled="{Binding IsCompassActive}"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
